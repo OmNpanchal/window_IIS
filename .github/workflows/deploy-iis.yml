@@ -1,0 +1,34 @@
+name: Deploy Website to IIS
+
+on:
+  push:
+    branches:
+      - main   # deploy when you push to main branch
+
+jobs:
+  deploy:
+    runs-on: self-hosted   # your Windows self-hosted runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Optional: Show where we are running
+      - name: Print runner info
+        run: whoami
+
+      # Copy files to IIS wwwroot
+      - name: Deploy to IIS
+        shell: powershell
+        run: |
+          $source = "$PWD"
+          $destination = "C:\inetpub\wwwroot"
+
+          # Use ROBOCOPY to sync website files (best method)
+          robocopy $source $destination /MIR /XD ".git" ".github" "/nfl" "/ndl" "/njh" "/njs"
+
+      # Restart IIS to load new changes
+      - name: Restart IIS
+        shell: powershell
+        run: |
+          iisreset
