@@ -1,4 +1,4 @@
-name: Deploy Website to IIS
+name: Deploy Static Website to IIS
 
 on:
   push:
@@ -8,31 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Deploy to IIS
-        shell: powershell
         run: |
-          $source = $PWD
-          $destination = "C:\inetpub\wwwroot"
-
-          Write-Host "Source: $source"
-          Write-Host "Destination: $destination"
-
-          robocopy $source $destination /MIR /XD ".git" ".github"
-
-          # robocopy success codes: 0–3
-          if ($LastExitCode -le 3) {
-            Write-Host "Robocopy Success (ExitCode=$LastExitCode)"
-            exit 0
-          } else {
-            Write-Host "Robocopy Failed (ExitCode=$LastExitCode)"
-            exit $LastExitCode
-          }
-
-      - name: Restart IIS
-        shell: powershell
-        run: iisreset
+          $webRoot = "C:\inetpub\wwwroot"
+          
+          # Remove old files
+          Remove-Item "$webRoot\*" -Recurse -Force
+          
+          # Copy new files
+          Copy-Item -Path "${{ github.workspace }}\*" -Destination $webRoot -Recurse -Force
