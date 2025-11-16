@@ -1,5 +1,6 @@
 name: Deploy Static Website to IIS
 
+# Trigger workflow on push to main branch
 on:
   push:
     branches:
@@ -7,17 +8,30 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    name: Deploy to IIS
+    runs-on: self-hosted  # uses your self-hosted runner on the IIS server
+
     steps:
-      - name: Checkout Code
+      # Step 1: Checkout your repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Step 2: Deploy files to IIS
       - name: Deploy to IIS
         run: |
           $webRoot = "C:\inetpub\wwwroot"
-          
-          # Remove old files
+
+          # Remove existing files
           Remove-Item "$webRoot\*" -Recurse -Force
-          
-          # Copy new files
+
+          # Copy new files from the repo
           Copy-Item -Path "${{ github.workspace }}\*" -Destination $webRoot -Recurse -Force
+
+          Write-Host "Files deployed successfully."
+
+      # Step 3 (Optional): Restart IIS if needed
+      - name: Restart IIS
+        if: always()
+        run: |
+          Write-Host "Restarting IIS..."
+          iisreset
