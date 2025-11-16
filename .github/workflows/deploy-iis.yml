@@ -24,6 +24,15 @@ jobs:
 
           robocopy $source $destination /MIR /XD ".git" ".github"
 
+          # robocopy success codes: 0–3
+          if ($LastExitCode -le 3) {
+            Write-Host "Robocopy Success (ExitCode=$LastExitCode)"
+            exit 0
+          } else {
+            Write-Host "Robocopy Failed (ExitCode=$LastExitCode)"
+            exit $LastExitCode
+          }
+
       - name: Restart IIS
         shell: powershell
         run: iisreset
