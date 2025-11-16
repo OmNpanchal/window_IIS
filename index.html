@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Super Big Animation</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        overflow: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(120deg, #000428, #004e92);
+        animation: bgShift 12s infinite alternate linear;
+        height: 100vh;
+    }
+
+    /* Background Gradient Animation */
+    @keyframes bgShift {
+        0%   { background: linear-gradient(120deg, #000428, #004e92); }
+        50%  { background: linear-gradient(120deg, #0f0c29, #302b63, #24243e); }
+        100% { background: linear-gradient(120deg, #23074d, #cc5333); }
+    }
+
+    /* Particle Canvas */
+    #particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    /* Neon Floating Title */
+    .title {
+        position: absolute;
+        top: 30px;
+        width: 100%;
+        text-align: center;
+        font-size: 55px;
+        color: #fff;
+        text-shadow: 0 0 15px #00eaff, 0 0 30px #00eaff;
+        animation: floatText 4s ease-in-out infinite;
+        z-index: 2;
+    }
+    @keyframes floatText {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    /* 3D Cube Styles */
+    .cube-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-style: preserve-3d;
+        transform: translate(-50%, -50%);
+        animation: rotateCube 12s infinite linear;
+        width: 200px;
+        height: 200px;
+        z-index: 3;
+    }
+
+    @keyframes rotateCube {
+        0%   { transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg); }
+        100% { transform: translate(-50%, -50%) rotateX(360deg) rotateY(360deg); }
+    }
+
+    .face {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border: 2px solid #fff;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(3px);
+    }
+
+    .front  { transform: translateZ(100px); }
+    .back   { transform: rotateY(180deg) translateZ(100px); }
+    .right  { transform: rotateY(90deg) translateZ(100px); }
+    .left   { transform: rotateY(-90deg) translateZ(100px); }
+    .top    { transform: rotateX(90deg) translateZ(100px); }
+    .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="title">SUPER BIG ANIMATION</div>
+
+<!-- 3D Cube -->
+<div class="cube-container">
+    <div class="face front"></div>
+    <div class="face back"></div>
+    <div class="face right"></div>
+    <div class="face left"></div>
+    <div class="face top"></div>
+    <div class="face bottom"></div>
+</div>
+
+<script>
+/* PARTICLE ANIMATION */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let count = 120;
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 4 + 1;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function init() {
+    particles = [];
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+init();
+animate();
+</script>
+
+</body>
+</html>
